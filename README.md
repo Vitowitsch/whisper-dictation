@@ -22,7 +22,7 @@ Lokale Spracherkennung für macOS mit OpenAI Whisper. Kostenlos, offline, keine 
 ## Installation
 
 ```bash
-git clone https://github.com/sanvito/whisper-dictation.git
+git clone https://github.com/Vitowitsch/whisper-dictation.git
 cd whisper-dictation
 chmod +x install.sh
 ./install.sh

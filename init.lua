@@ -1,5 +1,5 @@
 -- Whisper Dictation für Hammerspoon
--- https://github.com/sanvito/whisper-dictation
+-- https://github.com/Vitowitsch/whisper-dictation
 --
 -- Drücke den konfigurierten Hotkey zum Starten der Aufnahme,
 -- nochmal drücken zum Stoppen und Transkribieren.
