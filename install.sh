@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 # Whisper Dictation Installer
-# Installiert alle Abhängigkeiten für lokale Spracherkennung auf macOS
+# Installs all dependencies for local speech recognition on macOS
 #
 
 set -e
 
-# Farben
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,56 +19,56 @@ echo "║     🎤 Whisper Dictation Installer       ║"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"
 
-# Prüfe macOS
+# Check macOS
 if [[ "$(uname)" != "Darwin" ]]; then
-    echo -e "${RED}Fehler: Dieses Script funktioniert nur auf macOS.${NC}"
+    echo -e "${RED}Error: This script only works on macOS.${NC}"
     exit 1
 fi
 
-# Prüfe Homebrew
-echo -e "${YELLOW}[1/5] Prüfe Homebrew...${NC}"
+# Check Homebrew
+echo -e "${YELLOW}[1/5] Checking Homebrew...${NC}"
 if ! command -v brew &> /dev/null; then
-    echo -e "${RED}Homebrew nicht gefunden. Installiere es zuerst:${NC}"
+    echo -e "${RED}Homebrew not found. Install it first:${NC}"
     echo '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     exit 1
 fi
-echo -e "${GREEN}✓ Homebrew gefunden${NC}"
+echo -e "${GREEN}✓ Homebrew found${NC}"
 
-# Installiere Abhängigkeiten
-echo -e "${YELLOW}[2/5] Installiere whisper.cpp und sox...${NC}"
+# Install dependencies
+echo -e "${YELLOW}[2/5] Installing whisper.cpp and sox...${NC}"
 brew install whisper-cpp sox
 
-# Installiere Hammerspoon
-echo -e "${YELLOW}[3/5] Installiere Hammerspoon...${NC}"
+# Install Hammerspoon
+echo -e "${YELLOW}[3/5] Installing Hammerspoon...${NC}"
 if ! brew list --cask hammerspoon &> /dev/null; then
     brew install --cask hammerspoon
 else
-    echo -e "${GREEN}✓ Hammerspoon bereits installiert${NC}"
+    echo -e "${GREEN}✓ Hammerspoon already installed${NC}"
 fi
 
-# Erstelle Verzeichnisse
-echo -e "${YELLOW}[4/5] Erstelle Konfiguration...${NC}"
+# Create directories
+echo -e "${YELLOW}[4/5] Creating configuration...${NC}"
 mkdir -p ~/.whisper/models
 mkdir -p ~/.hammerspoon
 
-# Kopiere Konfigurationsdateien
+# Copy configuration files
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cp "$SCRIPT_DIR/config.lua" ~/.hammerspoon/config.lua
 cp "$SCRIPT_DIR/init.lua" ~/.hammerspoon/init.lua
 
-echo -e "${GREEN}✓ Konfiguration kopiert nach ~/.hammerspoon/${NC}"
+echo -e "${GREEN}✓ Configuration copied to ~/.hammerspoon/${NC}"
 
-# Modell-Auswahl
-echo -e "${YELLOW}[5/5] Whisper-Modell herunterladen...${NC}"
+# Model selection
+echo -e "${YELLOW}[5/5] Download Whisper model...${NC}"
 echo ""
-echo "Verfügbare Modelle:"
-echo "  1) tiny   (~75 MB)  - Schnellste, geringste Qualität"
-echo "  2) base   (~142 MB) - Schnell, gute Qualität"
-echo "  3) small  (~466 MB) - Ausgewogen"
-echo "  4) medium (~1.5 GB) - Hohe Qualität"
-echo "  5) large  (~1.5 GB) - Beste Qualität (large-v3-turbo)"
+echo "Available models:"
+echo "  1) tiny   (~75 MB)  - Fastest, lowest quality"
+echo "  2) base   (~142 MB) - Fast, good quality"
+echo "  3) small  (~466 MB) - Balanced"
+echo "  4) medium (~1.5 GB) - High quality"
+echo "  5) large  (~1.5 GB) - Best quality (large-v3-turbo)"
 echo ""
-read -p "Welches Modell? [1-5, Standard: 5]: " model_choice
+read -p "Which model? [1-5, default: 5]: " model_choice
 
 case "${model_choice:-5}" in
     1) MODEL="ggml-tiny.bin"; URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin" ;;
@@ -79,34 +79,34 @@ case "${model_choice:-5}" in
     *) MODEL="ggml-large.bin"; URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin" ;;
 esac
 
-# Aktualisiere Config mit gewähltem Modell
+# Update config with selected model
 sed -i '' "s/model = \".*\"/model = \"$MODEL\"/" ~/.hammerspoon/config.lua
 
 if [[ -f ~/.whisper/models/$MODEL ]]; then
-    echo -e "${GREEN}✓ Modell $MODEL bereits vorhanden${NC}"
+    echo -e "${GREEN}✓ Model $MODEL already exists${NC}"
 else
-    echo "Lade $MODEL herunter..."
+    echo "Downloading $MODEL..."
     curl -L -o ~/.whisper/models/$MODEL "$URL"
-    echo -e "${GREEN}✓ Modell heruntergeladen${NC}"
+    echo -e "${GREEN}✓ Model downloaded${NC}"
 fi
 
-# Abschluss
+# Finish
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║     ✓ Installation abgeschlossen!        ║${NC}"
+echo -e "${GREEN}║     ✓ Installation complete!             ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${YELLOW}Nächste Schritte (manuell):${NC}"
+echo -e "${YELLOW}Next steps (manual):${NC}"
 echo ""
-echo "1. Öffne Hammerspoon:"
+echo "1. Open Hammerspoon:"
 echo "   open -a Hammerspoon"
 echo ""
-echo "2. Erteile Berechtigungen in Systemeinstellungen:"
-echo "   • Datenschutz & Sicherheit → Bedienungshilfen → Hammerspoon ✓"
-echo "   • Datenschutz & Sicherheit → Mikrofon → Hammerspoon ✓"
+echo "2. Grant permissions in System Settings:"
+echo "   • Privacy & Security → Accessibility → Hammerspoon ✓"
+echo "   • Privacy & Security → Microphone → Hammerspoon ✓"
 echo ""
-echo "3. Klicke auf das Hammerspoon-Icon (🔨) → Reload Config"
+echo "3. Click the Hammerspoon icon (🔨) → Reload Config"
 echo ""
-echo "4. Drücke die ^-Taste (Dach-Taste) zum Diktieren!"
+echo "4. Press the ^-key (caret) to start dictating!"
 echo ""
-echo -e "${BLUE}Tipp: Bearbeite ~/.hammerspoon/config.lua um Sprache oder Hotkey zu ändern.${NC}"
+echo -e "${BLUE}Tip: Edit ~/.hammerspoon/config.lua to change language or hotkey.${NC}"
