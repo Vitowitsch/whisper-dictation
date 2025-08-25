@@ -1,26 +1,33 @@
 -- Whisper Dictation Configuration
 
 return {
+    -- Backend: "local" (free, offline) or "openai" (paid, better quality)
+    backend = "local",
+
     -- Language for transcription
     -- "de" = German, "en" = English, "auto" = auto-detect
     language = "de",
 
-    -- Whisper model (must be downloaded first)
-    -- Options: "ggml-tiny.bin", "ggml-base.bin", "ggml-small.bin", "ggml-medium.bin", "ggml-large.bin"
-    model = "ggml-large.bin",
+    -- Local backend settings (whisper.cpp)
+    localModel = "ggml-large.bin",
+
+    -- OpenAI backend settings
+    openai = {
+        -- Model: "whisper-1" or "gpt-4o-transcribe" (better)
+        model = "gpt-4o-transcribe",
+        -- API key: set via environment variable OPENAI_API_KEY
+        -- or create file: ~/.config/openai/api_key
+    },
 
     -- Hotkey to start/stop recording
     -- Keycode of the key (10 = ^ on German keyboard)
-    -- Tip: Press a key and check the Hammerspoon Console for the keycode
     hotkey = {
-        keycode = 10,        -- Keycode of the key
-        modifiers = {},      -- Modifiers: {"cmd"}, {"alt"}, {"ctrl"}, {"shift"} or combinations
+        keycode = 10,
+        modifiers = {},
     },
 
     -- Alternative hotkeys (optional)
-    alternativeHotkeys = {
-        -- { keycode = 98, modifiers = {} },  -- e.g. F7
-    },
+    alternativeHotkeys = {},
 
     -- Auto-paste after transcription (Cmd+V)
     autoPaste = true,
@@ -31,5 +38,6 @@ return {
         recording = "/tmp/whisper-recording.wav",
         whisperCli = "/opt/homebrew/bin/whisper-cli",
         rec = "/opt/homebrew/bin/rec",
+        transcribeOpenai = os.getenv("HOME") .. "/.hammerspoon/transcribe-openai.sh",
     },
 }
