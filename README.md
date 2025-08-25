@@ -1,6 +1,6 @@
 # 🎤 Whisper Dictation
 
-Local speech-to-text for macOS using OpenAI Whisper. Free, offline, no API keys required.
+Speech-to-text for macOS using OpenAI Whisper. Works in any app with a global hotkey.
 
 **Press a key → Speak → Text appears.**
 
@@ -8,8 +8,7 @@ Local speech-to-text for macOS using OpenAI Whisper. Free, offline, no API keys 
 
 ## Features
 
-- **Fully local** - No cloud, no costs, no limits
-- **Works offline** - No internet connection required
+- **Two backends** - Local (free, offline) or OpenAI API (paid, better quality)
 - **Global hotkey** - Works in any app
 - **Fast** - Optimized for Apple Silicon (M1/M2/M3)
 - **Configurable** - Language, model, hotkey customizable
@@ -18,6 +17,7 @@ Local speech-to-text for macOS using OpenAI Whisper. Free, offline, no API keys 
 
 - macOS (Apple Silicon recommended)
 - [Homebrew](https://brew.sh)
+- ffmpeg (installed automatically)
 
 ## Installation
 
@@ -30,7 +30,7 @@ chmod +x install.sh
 
 The script automatically installs:
 - whisper.cpp (local Whisper engine)
-- sox (audio recording)
+- ffmpeg (audio recording)
 - Hammerspoon (hotkey automation)
 
 ### Grant Permissions (manual)
@@ -58,18 +58,61 @@ After installation, you need to grant Hammerspoon permissions:
 
 The transcribed text is automatically pasted into the active app.
 
+## Backends
+
+### Local (default)
+
+Free, offline, runs entirely on your Mac.
+
+```lua
+backend = "local",
+localModel = "ggml-large.bin",
+```
+
+### OpenAI API (optional)
+
+Better quality, requires API key and costs ~$0.006/min.
+
+1. Get an API key from [platform.openai.com](https://platform.openai.com/api-keys)
+
+2. Save your key:
+   ```bash
+   mkdir -p ~/.config/openai
+   echo "sk-your-api-key" > ~/.config/openai/api_key
+   chmod 600 ~/.config/openai/api_key
+   ```
+
+3. Edit `~/.hammerspoon/config.lua`:
+   ```lua
+   backend = "openai",
+   ```
+
+4. Reload Hammerspoon config (🔨 → Reload Config)
+
+| Model | Quality | Cost |
+|-------|---------|------|
+| `whisper-1` | Good | $0.006/min |
+| `gpt-4o-transcribe` | Best | $0.006/min |
+
 ## Configuration
 
 Edit `~/.hammerspoon/config.lua`:
 
 ```lua
 return {
+    -- Backend: "local" (free) or "openai" (paid, better)
+    backend = "local",
+
     -- Language: "de", "en", "auto"
     language = "de",
 
-    -- Model: "ggml-tiny.bin", "ggml-base.bin", "ggml-small.bin",
-    --        "ggml-medium.bin", "ggml-large.bin"
-    model = "ggml-large.bin",
+    -- Local model
+    localModel = "ggml-large.bin",
+
+    -- OpenAI settings
+    openai = {
+        model = "gpt-4o-transcribe",
+    },
 
     -- Hotkey (keycode of the key)
     hotkey = {
@@ -96,7 +139,7 @@ curl -L -o ~/.whisper/models/ggml-small.bin \
   "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
 ```
 
-## Models
+## Local Models
 
 | Model | Size | RAM | Quality | Speed |
 |-------|------|-----|---------|-------|
@@ -121,35 +164,43 @@ curl -L -o ~/.whisper/models/ggml-small.bin \
 
 ### Transcription takes too long
 - Switch to a smaller model (base or small)
-- Make sure no other Whisper processes are running
+- Or switch to OpenAI backend for faster cloud processing
 
 ### Wrong language detected
 - Change `language` in config.lua
 - Use `"auto"` for automatic detection
 
+### OpenAI API errors
+- Check if your API key is valid
+- Check if you have credits on platform.openai.com
+- Check the Hammerspoon Console for error details
+
 ## Uninstall
 
 ```bash
 # Remove Hammerspoon config
-rm ~/.hammerspoon/init.lua ~/.hammerspoon/config.lua
+rm ~/.hammerspoon/init.lua ~/.hammerspoon/config.lua ~/.hammerspoon/transcribe-openai.sh
+
+# Remove API key (if used)
+rm -rf ~/.config/openai
 
 # Remove models (optional, saves disk space)
 rm -rf ~/.whisper
 
 # Remove Homebrew packages (optional)
-brew uninstall whisper-cpp sox
+brew uninstall whisper-cpp ffmpeg
 brew uninstall --cask hammerspoon
 ```
 
-## Why Local Instead of Cloud?
+## Local vs Cloud
 
-| | Local (this project) | Cloud (API) |
-|--|----------------------|-------------|
+| | Local | OpenAI API |
+|--|-------|------------|
 | Cost | **Free** | ~$0.006/min |
 | Privacy | **Local** | Data transmitted |
 | Offline | **Yes** | No |
-| Latency | Low | Network-dependent |
-| Limits | **None** | Rate limits |
+| Quality | Good | **Better** |
+| Speed | Depends on model | Fast |
 
 ## Credits
 

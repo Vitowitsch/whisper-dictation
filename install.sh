@@ -35,8 +35,8 @@ fi
 echo -e "${GREEN}✓ Homebrew found${NC}"
 
 # Install dependencies
-echo -e "${YELLOW}[2/5] Installing whisper.cpp and sox...${NC}"
-brew install whisper-cpp sox
+echo -e "${YELLOW}[2/5] Installing whisper.cpp and ffmpeg...${NC}"
+brew install whisper-cpp ffmpeg
 
 # Install Hammerspoon
 echo -e "${YELLOW}[3/5] Installing Hammerspoon...${NC}"
@@ -55,6 +55,11 @@ mkdir -p ~/.hammerspoon
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cp "$SCRIPT_DIR/config.lua" ~/.hammerspoon/config.lua
 cp "$SCRIPT_DIR/init.lua" ~/.hammerspoon/init.lua
+cp "$SCRIPT_DIR/transcribe-openai.sh" ~/.hammerspoon/transcribe-openai.sh
+chmod +x ~/.hammerspoon/transcribe-openai.sh
+
+# Create directory for OpenAI API key (optional)
+mkdir -p ~/.config/openai
 
 echo -e "${GREEN}✓ Configuration copied to ~/.hammerspoon/${NC}"
 
